@@ -1,0 +1,2 @@
+# ehrebot
+Privater Discord Bot
