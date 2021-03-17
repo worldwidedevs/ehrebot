@@ -6,18 +6,12 @@ from random import randint
 import json
 from datetime import datetime
 
-#set up logger
-#logger = logging.getLogger('discord')
-#logger.setLevel(logging.DEBUG)
-#handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w')
-#handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
-#logger.addHandler(handler)
-
 description = "Ein Bot der eine virtuelle Bank simuliert."
 bot = commands.Bot(command_prefix='.', description=description)
 
 load_dotenv()
-DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
+#DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
+DISCORD_TOKEN = "NzY1OTgxMDY1OTg2MTc5MTEy.X4ctdQ.BcIsn6rERjvcn_9s-pmoYXR8Mv8"
 
 # Database setup
 class UserDB(object):
@@ -238,5 +232,89 @@ async def claim(ctx):
       await ctx.send("Du hast `5 EHRE` geclaimt!")
     else:
       await ctx.send("Du kannst erst morgen wieder `EHRE` claimen, alla!")
+      
+@bot.command(description="Zeige die aktuelle Shopseite", help="Zeige die aktuelle Shopseite")
+async def shop(ctx):
+  await ctx.send("**EHRE SHOP** \n`50 EHRE` Ritter \n`100 EHRE` Adel \n`500 EHRE` König \n`1000 EHRE` Gottheit \n \n Schreibe `.buy [Name des Items]` um etwas zu kaufen")
+
+@bot.command(description="Kaufe ein Item aus dem Shop", help="Kaufe ein Item aus dem Shop")
+async def buy(ctx, item: str):
+  member = ctx.author
+  memberRoles = str(member.roles)
+  roleItem1 = discord.utils.get(ctx.guild.roles, name="Ritter")
+  roleItem2 = discord.utils.get(ctx.guild.roles, name="Adel")
+  roleItem3 = discord.utils.get(ctx.guild.roles, name="König")
+  roleItem4 = discord.utils.get(ctx.guild.roles, name="Gottheit")
+  
+  if item == "Ritter":
+    if memberRoles.find("Ritter") >= 0:
+      await ctx.send("Wait a second! Die Rolle hast du schon! Schande!")
+    else:
+      price = 50
+      balance = udb.get(str(ctx.author.id))
+      if balance == False:
+        await ctx.send("Bitte eröffne zuerst ein Konto mit `.signup`!")
+      else:
+        if balance < price:
+          await ctx.send("Dein Kontostand kann diesen Betrag nicht decken.")
+        else:
+          newBalance = balance - price
+          memberID = str(ctx.author.id)
+          udb.set(memberID, newBalance)
+          await member.add_roles(roleItem1, reason=None, atomic=True)
+          await ctx.send("Du hast `Ritter` für `50 EHRE` gekauft! EHRE!")
+  elif item == "Adel":
+    if memberRoles.find("Adel") >= 0:
+      await ctx.send("Wait a second! Die Rolle hast du schon! Schande!")
+    else:
+      price = 100
+      balance = udb.get(str(ctx.author.id))
+      if balance == False:
+        await ctx.send("Bitte eröffne zuerst ein Konto mit `.signup`!")
+      else:
+        if balance < price:
+          await ctx.send("Dein Kontostand kann diesen Betrag nicht decken.")
+        else:
+          newBalance = balance - price
+          memberID = str(ctx.author.id)
+          udb.set(memberID, newBalance)
+          await member.add_roles(roleItem2, reason=None, atomic=True)
+          await ctx.send("Du hast `Adel` für `100 EHRE` gekauft! SEHR EHRENVOLL!")
+  elif item == "König":
+    if memberRoles.find("König") >= 0:
+      await ctx.send("Wait a second! Die Rolle hast du schon! Schande!")
+    else:
+      price = 500
+      balance = udb.get(str(ctx.author.id))
+      if balance == False:
+        await ctx.send("Bitte eröffne zuerst ein Konto mit `.signup`!")
+      else:
+        if balance < price:
+          await ctx.send("Dein Kontostand kann diesen Betrag nicht decken.")
+        else:
+          newBalance = balance - price
+          memberID = str(ctx.author.id)
+          udb.set(memberID, newBalance)
+          await member.add_roles(roleItem3, reason=None, atomic=True)
+          await ctx.send("Du hast `König` für `500 EHRE` gekauft! EIN WAHRHAFTER EHRENBARON!")
+  elif item == "Gottheit":
+    if memberRoles.find("Gottheit") >= 0:
+      await ctx.send("Wait a second! Die Rolle hast du schon! Schande!")
+    else:
+      price = 1000
+      balance = udb.get(str(ctx.author.id))
+      if balance == False:
+        await ctx.send("Bitte eröffne zuerst ein Konto mit `.signup`!")
+      else:
+        if balance < price:
+          await ctx.send("Dein Kontostand kann diesen Betrag nicht decken.")
+        else:
+          newBalance = balance - price
+          memberID = str(ctx.author.id)
+          udb.set(memberID, newBalance)
+          await member.add_roles(roleItem4, reason=None, atomic=True)
+          await ctx.send("Du hast `Gottheit` für `1000 EHRE` gekauft! GÖTTLICHE EHRE!")
+  else:
+    await ctx.send("Sorry, aber dieses Item gibt es nicht.")
         
 bot.run(DISCORD_TOKEN)
