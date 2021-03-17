@@ -1,7 +1,9 @@
-# discordbot 🤖
-A Discord Bot made with Python 3.7.7
+# ehrebot 💰
 
->⚠️ This bot is only available for developing and testing and is not ready to be used on any public servers.
+> This is a project for german speaking members. It will likely not be translated.
 
-Invite with ```https://discord.com/oauth2/authorize?client_id=765233309155328092&scope=bot&permissions=2146958847``` (dev version with ```https://discord.com/oauth2/authorize?client_id=765981065986179112&scope=bot&permissions=2146958847```. 
-Permissions are configured for testing purposes.
+>⚠️ This bot is not recommended to be used on any public servers.
+
+Ein Discord Bot als Gemeinschaftsprojekt - hauptsächlich als bespaßung gedacht. Der Bot simuliert eine einfache Bank mit kleinen Extras.
+
+Der Bot kann mit diesem Link (`https://discord.com/oauth2/authorize?client_id=773673562090766348&scope=bot&permissions=2080898120`) eingeladen werden.
