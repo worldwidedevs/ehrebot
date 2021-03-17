@@ -10,8 +10,7 @@ description = "Ein Bot der eine virtuelle Bank simuliert."
 bot = commands.Bot(command_prefix='.', description=description)
 
 load_dotenv()
-#DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
-DISCORD_TOKEN = "NzY1OTgxMDY1OTg2MTc5MTEy.X4ctdQ.BcIsn6rERjvcn_9s-pmoYXR8Mv8"
+DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
 
 # Database setup
 class UserDB(object):
