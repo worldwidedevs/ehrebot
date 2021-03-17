@@ -144,17 +144,17 @@ async def ping(ctx):
   await ctx.send("Pong! Bot latency: {0}".format(bot.latency))
   
 @bot.command(description="Registriere dein Konto", help="Registriere dein Konto")
-async def registrieren(ctx):
+async def signup(ctx):
   userBalance = udb.get(str(ctx.author.id))
   if userBalance == False:
     udb.set(str(ctx.author.id), 20)
     cdb.set(str(ctx.author.id), "none")
-    await ctx.send("Dein Konto bei **ehrebank** wurde eröffnet. Als Willkommensgeschenk bekommst du 20 Ehre!")
+    await ctx.send("Dein Konto bei **ehrebank** wurde eröffnet. Als Willkommensgeschenk bekommst du `20 EHRE`!")
   else:
     await ctx.send("Du hast schon ein Konto eröffnet.")
     
 @bot.command(description="Zeige deinen Kontostand an", help="Zeige deinen Kontostand an")
-async def konto(ctx):
+async def balance(ctx):
   try:
     mentionedID = str(ctx.message.mentions[0].id)
     mentionedBalance = udb.get(mentionedID)
@@ -166,7 +166,7 @@ async def konto(ctx):
     await ctx.send(f"Der Kontostand von {ctx.message.mentions[0]} bei der **ehrebank** ist: `{mentionedBalance} EHRE`")
     
 @bot.command(description="Sende EHRE", help="Sende EHRE")
-async def sende(ctx, amount: int):
+async def send(ctx, amount: int):
   senderBalance = udb.get(str(ctx.author.id))
   if senderBalance == False:
     await ctx.send("Bitte eröffne zuerst ein Konto mit `.signup`!")
@@ -190,8 +190,8 @@ async def sende(ctx, amount: int):
           await ctx.send(f"Transaktion fertig! `{amount} EHRE` wurde(n) zu `{ctx.message.mentions[0]}` gesendet.")
           await ctx.message.mentions[0].send(f"`{amount} EHRE` wurde(n) dir von `{ctx.author}` gesendet.")
           
-@bot.command(description="Gebe EHRE", help="Gebe EHRE")
-async def gebe(ctx, amount: int):
+@bot.command(description="Gebe EHRE", help="Gebe EHRE (kann nur der Bot Besitzer)")
+async def give(ctx, amount: int):
   if str(ctx.author.id) == "215080717560971264":
     senderBalance = udb.get(str(ctx.author.id))
     if senderBalance == False:
@@ -213,7 +213,7 @@ async def gebe(ctx, amount: int):
   else:
     await ctx.send("Du must der Bot Besitzer sein um diese Aktion ausführen zu können.")
     
-@bot.command(description="Claime täglich EHRE", help="Claime EHRE")
+@bot.command(description="Claime täglich EHRE", help="Claime täglich EHRE")
 async def claim(ctx):      
   userBalance = udb.get(str(ctx.author.id))
   lastClaim = cdb.get(str(ctx.author.id))
