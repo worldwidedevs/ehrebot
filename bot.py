@@ -1,119 +1,20 @@
 import discord
 from discord.ext import commands
 from dotenv import load_dotenv
-import os
 from random import randint
-import json
+import os
 from datetime import datetime
+from utils import database
 
 description = "Ein Bot der eine virtuelle Bank simuliert."
-bot = commands.Bot(command_prefix='.', description=description)
+bot = commands.Bot(command_prefix=".", description=description)
 
 load_dotenv()
 DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
 
-# Database setup
-class UserDB(object):
-    def __init__(self , location):
-        self.location = os.path.expanduser(location)
-        self.load(self.location)
+udb = database.UserDB("user.db")
+cdb = database.ClaimDB("claim.db")
 
-    def load(self , location):
-       if os.path.exists(location):
-           self._load()
-       else:
-            self.db = {}
-       return True
-
-    def _load(self):
-        self.db = json.load(open(self.location , "r"))
-
-    def dumpdb(self):
-        try:
-            json.dump(self.db , open(self.location, "w+"))
-            return True
-        except:
-            return False
-
-    def set(self , key , value):
-        try:
-            self.db[str(key)] = value
-            self.dumpdb()
-        except Exception as e:
-            print("[X] Error Saving Values to Database : " + str(e))
-            return False
-
-    def get(self , key):
-        try:
-            return self.db[key]
-        except KeyError:
-            print("No Value Can Be Found for " + str(key))
-            return False
-
-    def delete(self , key):
-        if not key in self.db:
-            return False
-        del self.db[key]
-        self.dumpdb()
-        return True
-    
-    def resetdb(self):
-        self.db={}
-        self.dumpdb()
-        return True
-	
-udb = UserDB("user.db")
-
-class ClaimDB(object):
-    def __init__(self , location):
-        self.location = os.path.expanduser(location)
-        self.load(self.location)
-
-    def load(self , location):
-       if os.path.exists(location):
-           self._load()
-       else:
-            self.db = {}
-       return True
-
-    def _load(self):
-        self.db = json.load(open(self.location , "r"))
-
-    def dumpdb(self):
-        try:
-            json.dump(self.db , open(self.location, "w+"))
-            return True
-        except:
-            return False
-
-    def set(self , key , value):
-        try:
-            self.db[str(key)] = value
-            self.dumpdb()
-        except Exception as e:
-            print("[X] Error Saving Values to Database : " + str(e))
-            return False
-
-    def get(self , key):
-        try:
-            return self.db[key]
-        except KeyError:
-            print("No Value Can Be Found for " + str(key))
-            return False
-
-    def delete(self , key):
-        if not key in self.db:
-            return False
-        del self.db[key]
-        self.dumpdb()
-        return True
-    
-    def resetdb(self):
-        self.db={}
-        self.dumpdb()
-        return True
-	
-cdb = ClaimDB("claim.db")
 
 @bot.event
 async def on_ready():
@@ -131,11 +32,13 @@ async def on_ready():
   await bot.change_presence(activity=discord.Game(name="on " + str(guild_count) + " servers | .help"))
   
   print("Bot is in " + str(guild_count) + " guilds")
+
     
 @bot.command(description="Testet den Ping des Bots", help="Testet den Ping des Bots")
 async def ping(ctx):
   await ctx.send("Pong! Bot latency: {0}".format(bot.latency))
-  
+
+
 @bot.command(description="Registriere dein Konto", help="Registriere dein Konto")
 async def signup(ctx):
   userBalance = udb.get(str(ctx.author.id))
@@ -145,19 +48,26 @@ async def signup(ctx):
     await ctx.send("Dein Konto bei **ehrebank** wurde eröffnet. Als Willkommensgeschenk bekommst du `20 EHRE`!")
   else:
     await ctx.send("Du hast schon ein Konto eröffnet.")
-    
+
+
 @bot.command(description="Zeige deinen Kontostand an", help="Zeige deinen Kontostand an")
 async def balance(ctx):
   try:
     mentionedID = str(ctx.message.mentions[0].id)
     mentionedBalance = udb.get(mentionedID)
+    if mentionedBalance == False:
+      await ctx.send("Der Benutzer hat noch kein Konto und muss es erst mit `.signup` erstellen.")
+    else:
+      await ctx.send(f"Der Kontostand von {ctx.message.mentions[0]} bei der **ehrebank** ist: `{mentionedBalance} EHRE`")
   except:
-    await ctx.send("Du musst einen Benutzer erwähnen.")
-  if mentionedBalance == False:
-    await ctx.send("Der Benutzer hat noch kein Konto und muss es erst mit `.signup` erstellen.")
-  else:
-    await ctx.send(f"Der Kontostand von {ctx.message.mentions[0]} bei der **ehrebank** ist: `{mentionedBalance} EHRE`")
-    
+    mentionedID = str(ctx.author.id)
+    mentionedBalance = udb.get(mentionedID)
+    if mentionedBalance == False:
+      await ctx.send("Der Benutzer hat noch kein Konto und muss es erst mit `.signup` erstellen.")
+    else:
+      await ctx.send(f"Dein Kontostand bei der **ehrebank** ist: `{mentionedBalance} EHRE`")
+
+
 @bot.command(description="Sende EHRE", help="Sende EHRE")
 async def send(ctx, amount: int):
   senderBalance = udb.get(str(ctx.author.id))
@@ -182,7 +92,8 @@ async def send(ctx, amount: int):
           udb.set(senderID, newSenderBalance)
           await ctx.send(f"Transaktion fertig! `{amount} EHRE` wurde(n) zu `{ctx.message.mentions[0]}` gesendet.")
           await ctx.message.mentions[0].send(f"`{amount} EHRE` wurde(n) dir von `{ctx.author}` gesendet.")
-          
+
+
 @bot.command(description="Gebe EHRE", help="Gebe EHRE (kann nur der Bot Besitzer)")
 async def give(ctx, amount: int):
   if str(ctx.author.id) == "215080717560971264":
@@ -205,7 +116,8 @@ async def give(ctx, amount: int):
           await ctx.message.mentions[0].send(f"`{amount} EHRE` wurde(n) dir gegeben.")
   else:
     await ctx.send("Du must der Bot Besitzer sein um diese Aktion ausführen zu können.")
-    
+
+
 @bot.command(description="Claime täglich EHRE", help="Claime täglich EHRE")
 async def claim(ctx):      
   userBalance = udb.get(str(ctx.author.id))
@@ -231,10 +143,12 @@ async def claim(ctx):
       await ctx.send("Du hast `5 EHRE` geclaimt!")
     else:
       await ctx.send("Du kannst erst morgen wieder `EHRE` claimen, alla!")
-      
+
+
 @bot.command(description="Zeige die aktuelle Shopseite", help="Zeige die aktuelle Shopseite")
 async def shop(ctx):
   await ctx.send("**EHRE SHOP** \n`50 EHRE` Ritter \n`100 EHRE` Adel \n`500 EHRE` König \n`1000 EHRE` Gottheit \n \n Schreibe `.buy [Name des Items]` um etwas zu kaufen")
+
 
 @bot.command(description="Kaufe ein Item aus dem Shop", help="Kaufe ein Item aus dem Shop")
 async def buy(ctx, item: str):
@@ -315,5 +229,32 @@ async def buy(ctx, item: str):
           await ctx.send("Du hast `Gottheit` für `1000 EHRE` gekauft! GÖTTLICHE EHRE!")
   else:
     await ctx.send("Sorry, aber dieses Item gibt es nicht.")
+
+
+@bot.command(description="Wirf eine Münze", help="Wirf eine Münze")
+async def coinflip(ctx, amount: int, side: str):
+  balance = udb.get(str(ctx.author.id))
+  if balance == False:
+    await ctx.send("Bitte eröffne zuerst ein Konto mit `.signup`!")
+  else:
+    if balance < amount:
+      await ctx.send("Dein Kontostand kann diesen Betrag nicht decken.")
+    elif side != "heads" and side != "tails":
+      await ctx.send("`{0}` ist keine gültige Seite. Probiere `heads` oder `tails`.".format(side))
+    else:
+      randSide = randint(1,2)
+      sidePercentage = randint(1,50)
+      if sidePercentage == 1:
+        randSide = "side"
+      elif randSide == 1:
+        randSide = "heads"
+      elif randSide == 2:
+        randSide = "tails"
+      if side == randSide:
+        await ctx.send("Du hast `{0}` geworfen! Du gewinnst `{1} EHRE`!".format(randSide, amount))
+        udb.set(str(ctx.author.id),balance+amount)
+      else:
+        await ctx.send("Du hast `{0}` geworfen! Du verlierst `{1} EHRE`!".format(randSide, amount))
+        udb.set(str(ctx.author.id), balance-amount)
         
 bot.run(DISCORD_TOKEN)
