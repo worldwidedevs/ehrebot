@@ -6,11 +6,13 @@ import os
 from datetime import datetime
 from utils import database
 
+version = "1.1"
 description = "Ein Bot der eine virtuelle Bank simuliert."
 bot = commands.Bot(command_prefix=".", description=description)
 
 load_dotenv()
-DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
+# DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
+DISCORD_TOKEN = "NzY1OTgxMDY1OTg2MTc5MTEy.X4ctdQ.0bH8oy9DB-apsK5KzOHSoaXA3q0"
 botOwner = ["215080717560971264", "405843581534994433"]
 
 udb = database.UserDB("user.db")
@@ -38,7 +40,12 @@ async def on_ready():
     
 @bot.command(description="Testet den Ping des Bots", help="Testet den Ping des Bots")
 async def ping(ctx):
-  await ctx.send("Pong! Bot latency: {0}".format(bot.latency))
+  await ctx.send("Pong! Bot Latenz: {0} ms".format(bot.latency))
+
+
+@bot.command(description="Sehe die aktuelle Version des Bots", help="Sehe die aktuelle Version des Bots")
+async def version(ctx):
+  await ctx.send("Die aktuelle Version ist `{0}`".format(bot.latency))
 
 
 @bot.command(description="Registriere dein Konto", help="Registriere dein Konto")
@@ -63,7 +70,7 @@ async def balance(ctx):
     if mentionedBalance == None:
       await ctx.send("Der Benutzer hat noch kein Konto und muss es erst mit `.signup` erstellen.")
     else:
-      await ctx.send(f"Der Kontostand von {ctx.message.mentions[0]} bei der **ehrebank** ist: `{mentionedBalance} EHRE`")
+      await ctx.send("Der Kontostand von {0} bei der **ehrebank** ist: `{1} EHRE`".format(ctx.message.mentions[0], mentionedBalance))
   except:
     mentionedID = str(ctx.author.id)
     mentionedBalance = udb.get(mentionedID)
@@ -246,8 +253,8 @@ async def coinflip(ctx, side: str, amount: int):
 
   if flips == False:
     fdb.set(str(ctx.author.id), [0, datenow])
-
-  if flips[0] >= 5 and flips[1] == datenow:
+    await ctx.send("Du hattest noch keinen Eintrag in der Flip-Limit Datenbank. Der Eintrag wurde jetzt erstellt - bitte versuch's nochmal.")
+  elif flips[0] >= 5 and flips[1] == datenow:
     await ctx.send("Du hast dein tägliches Flip-Limit erreicht!")
   else:
     if flips[1] != datenow:
