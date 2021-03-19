@@ -52,7 +52,6 @@ async def signup(ctx):
   userBalance = udb.get(str(ctx.author.id))
   now = datetime.now()
   datenow = now.strftime("%d-%m-%Y")
-  print(f"userBalance: {userBalance}")
   if userBalance == False:
     udb.set(str(ctx.author.id), 20)
     cdb.set(str(ctx.author.id), "none")
@@ -67,7 +66,6 @@ async def balance(ctx):
   try:
     mentionedID = str(ctx.message.mentions[0].id)
     mentionedBalance = udb.get(mentionedID)
-    print(f"mentionedBalance: {mentionedBalance}")
     if mentionedBalance == False:
       await ctx.send("Der Benutzer hat noch kein Konto und muss es erst mit `.signup` erstellen.")
     else:
