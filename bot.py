@@ -127,7 +127,7 @@ async def give(ctx, amount: int):
 async def claim(ctx):      
   userBalance = udb.get(str(ctx.author.id))
   lastClaim = cdb.get(str(ctx.author.id))
-  if userBalance == False:
+  if userBalance == None:
     await ctx.send("Bitte eröffne zuerst ein Konto mit `.signup`!")
   else:
     if lastClaim == False:
