@@ -10,7 +10,7 @@ description = "Ein Bot der eine virtuelle Bank simuliert."
 bot = commands.Bot(command_prefix=".", description=description)
 
 load_dotenv()
-#DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
+DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
 botOwner = ["215080717560971264", "405843581534994433"]
 
 udb = database.UserDB("user.db")
@@ -131,7 +131,7 @@ async def claim(ctx):
     await ctx.send("Bitte eröffne zuerst ein Konto mit `.signup`!")
   else:
     if lastClaim == False:
-      cdb.set(str(ctx.author.id), "None")
+      cdb.set(str(ctx.author.id), "none")
       
     now = datetime.now()
     datenow = now.strftime("%d-%m-%Y")
@@ -238,6 +238,7 @@ async def buy(ctx, item: str):
 
 @bot.command(description="Wirf eine Münze", help="Wirf eine Münze")
 async def coinflip(ctx, side: str, amount: int):
+  side = side.lower()
   balance = udb.get(str(ctx.author.id))
   flips = fdb.get(str(ctx.author.id))
   now = datetime.now()
