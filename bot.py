@@ -44,7 +44,7 @@ async def ping(ctx):
 
 @bot.command(description="Sehe die aktuelle Version des Bots", help="Sehe die aktuelle Version des Bots")
 async def version(ctx):
-  await ctx.send("Die aktuelle Version ist `{0}`".format(bot.latency))
+  await ctx.send("Die aktuelle Version ist `{0}`".format(version))
 
 
 @bot.command(description="Registriere dein Konto", help="Registriere dein Konto")
