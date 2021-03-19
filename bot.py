@@ -53,7 +53,8 @@ async def signup(ctx):
   userBalance = udb.get(str(ctx.author.id))
   now = datetime.now()
   datenow = now.strftime("%d-%m-%Y")
-  if userBalance == None:
+  print(f"userBalance: {userBalance}")
+  if userBalance == False:
     udb.set(str(ctx.author.id), 20)
     cdb.set(str(ctx.author.id), "none")
     fdb.set(str(ctx.author.id), [0, datenow])
@@ -67,17 +68,18 @@ async def balance(ctx):
   try:
     mentionedID = str(ctx.message.mentions[0].id)
     mentionedBalance = udb.get(mentionedID)
-    if mentionedBalance == None:
+    print(f"mentionedBalance: {mentionedBalance}")
+    if mentionedBalance == False:
       await ctx.send("Der Benutzer hat noch kein Konto und muss es erst mit `.signup` erstellen.")
     else:
       await ctx.send("Der Kontostand von {0} bei der **ehrebank** ist: `{1} EHRE`".format(ctx.message.mentions[0], mentionedBalance))
   except:
     mentionedID = str(ctx.author.id)
     mentionedBalance = udb.get(mentionedID)
-    if mentionedBalance == None:
-      await ctx.send("Der Benutzer hat noch kein Konto und muss es erst mit `.signup` erstellen.")
+    if mentionedBalance == False:
+      await ctx.send("Du hast noch kein Konto und muss es erst mit `.signup` erstellen.")
     else:
-      await ctx.send(f"Dein Kontostand bei der **ehrebank** ist: `{mentionedBalance} EHRE`")
+      await ctx.send("Dein Kontostand bei der **ehrebank** ist: `{0} EHRE`".format(mentionedBalance))
 
 
 @bot.command(description="Sende EHRE", help="Sende EHRE")
@@ -102,8 +104,8 @@ async def send(ctx, amount: int):
           senderID = str(ctx.author.id)
           udb.set(receiverID, newReceiverBalance)
           udb.set(senderID, newSenderBalance)
-          await ctx.send(f"Transaktion fertig! `{amount} EHRE` wurde(n) zu `{ctx.message.mentions[0]}` gesendet.")
-          await ctx.message.mentions[0].send(f"`{amount} EHRE` wurde(n) dir von `{ctx.author}` gesendet.")
+          await ctx.send("Transaktion fertig! `{0} EHRE` wurde(n) zu `{1}` gesendet.".format(amount, ctx.message.mentions[0]))
+          await ctx.message.mentions[0].send("`{0} EHRE` wurde(n) dir von `{1}` gesendet.".format(amount, ctx.author))
 
 
 @bot.command(description="Gebe EHRE", help="Gebe EHRE (kann nur der Bot Besitzer)")
@@ -124,8 +126,8 @@ async def give(ctx, amount: int):
           newReceiverBalance = receiverBalance + amount
           senderID = str(ctx.author.id)
           udb.set(receiverID, newReceiverBalance)
-          await ctx.send(f"Transaktion fertig! `{amount} EHRE` wurde(n) zu `{ctx.message.mentions[0]}` gegeben.")
-          await ctx.message.mentions[0].send(f"`{amount} EHRE` wurde(n) dir gegeben.")
+          await ctx.send("Transaktion fertig! `{0} EHRE` wurde(n) zu `{1}` gegeben.".format(amount, ctx.message.mentions[0]))
+          await ctx.message.mentions[0].send("`{0} EHRE` wurde(n) dir gegeben.".format(amount))
   else:
     await ctx.send("Du must der Bot Besitzer sein um diese Aktion ausführen zu können.")
 
