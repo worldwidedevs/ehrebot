@@ -6,6 +6,7 @@ import os
 from datetime import datetime
 from utils import database
 
+version = "1.1"
 description = "Ein Bot der eine virtuelle Bank simuliert."
 bot = commands.Bot(command_prefix=".", description=description)
 
@@ -38,7 +39,12 @@ async def on_ready():
     
 @bot.command(description="Testet den Ping des Bots", help="Testet den Ping des Bots")
 async def ping(ctx):
-  await ctx.send("Pong! Bot latency: {0}".format(bot.latency))
+  await ctx.send("Pong! Bot Latenz: {0} ms".format(bot.latency))
+
+
+@bot.command(description="Sehe die aktuelle Version des Bots", help="Sehe die aktuelle Version des Bots")
+async def version(ctx):
+  await ctx.send("Die aktuelle Version ist `{0}`".format(bot.latency))
 
 
 @bot.command(description="Registriere dein Konto", help="Registriere dein Konto")
@@ -46,7 +52,7 @@ async def signup(ctx):
   userBalance = udb.get(str(ctx.author.id))
   now = datetime.now()
   datenow = now.strftime("%d-%m-%Y")
-  if userBalance == None:
+  if userBalance == False:
     udb.set(str(ctx.author.id), 20)
     cdb.set(str(ctx.author.id), "none")
     fdb.set(str(ctx.author.id), [0, datenow])
@@ -60,17 +66,17 @@ async def balance(ctx):
   try:
     mentionedID = str(ctx.message.mentions[0].id)
     mentionedBalance = udb.get(mentionedID)
-    if mentionedBalance == None:
+    if mentionedBalance == False:
       await ctx.send("Der Benutzer hat noch kein Konto und muss es erst mit `.signup` erstellen.")
     else:
-      await ctx.send(f"Der Kontostand von {ctx.message.mentions[0]} bei der **ehrebank** ist: `{mentionedBalance} EHRE`")
+      await ctx.send("Der Kontostand von {0} bei der **ehrebank** ist: `{1} EHRE`".format(ctx.message.mentions[0], mentionedBalance))
   except:
     mentionedID = str(ctx.author.id)
     mentionedBalance = udb.get(mentionedID)
-    if mentionedBalance == None:
-      await ctx.send("Der Benutzer hat noch kein Konto und muss es erst mit `.signup` erstellen.")
+    if mentionedBalance == False:
+      await ctx.send("Du hast noch kein Konto und muss es erst mit `.signup` erstellen.")
     else:
-      await ctx.send(f"Dein Kontostand bei der **ehrebank** ist: `{mentionedBalance} EHRE`")
+      await ctx.send("Dein Kontostand bei der **ehrebank** ist: `{0} EHRE`".format(mentionedBalance))
 
 
 @bot.command(description="Sende EHRE", help="Sende EHRE")
@@ -95,8 +101,8 @@ async def send(ctx, amount: int):
           senderID = str(ctx.author.id)
           udb.set(receiverID, newReceiverBalance)
           udb.set(senderID, newSenderBalance)
-          await ctx.send(f"Transaktion fertig! `{amount} EHRE` wurde(n) zu `{ctx.message.mentions[0]}` gesendet.")
-          await ctx.message.mentions[0].send(f"`{amount} EHRE` wurde(n) dir von `{ctx.author}` gesendet.")
+          await ctx.send("Transaktion fertig! `{0} EHRE` wurde(n) zu `{1}` gesendet.".format(amount, ctx.message.mentions[0]))
+          await ctx.message.mentions[0].send("`{0} EHRE` wurde(n) dir von `{1}` gesendet.".format(amount, ctx.author))
 
 
 @bot.command(description="Gebe EHRE", help="Gebe EHRE (kann nur der Bot Besitzer)")
@@ -117,8 +123,8 @@ async def give(ctx, amount: int):
           newReceiverBalance = receiverBalance + amount
           senderID = str(ctx.author.id)
           udb.set(receiverID, newReceiverBalance)
-          await ctx.send(f"Transaktion fertig! `{amount} EHRE` wurde(n) zu `{ctx.message.mentions[0]}` gegeben.")
-          await ctx.message.mentions[0].send(f"`{amount} EHRE` wurde(n) dir gegeben.")
+          await ctx.send("Transaktion fertig! `{0} EHRE` wurde(n) zu `{1}` gegeben.".format(amount, ctx.message.mentions[0]))
+          await ctx.message.mentions[0].send("`{0} EHRE` wurde(n) dir gegeben.".format(amount))
   else:
     await ctx.send("Du must der Bot Besitzer sein um diese Aktion ausführen zu können.")
 
@@ -246,8 +252,8 @@ async def coinflip(ctx, side: str, amount: int):
 
   if flips == False:
     fdb.set(str(ctx.author.id), [0, datenow])
-
-  if flips[0] >= 5 and flips[1] == datenow:
+    await ctx.send("Du hattest noch keinen Eintrag in der Flip-Limit Datenbank. Der Eintrag wurde jetzt erstellt - bitte versuch's nochmal.")
+  elif flips[0] >= 5 and flips[1] == datenow:
     await ctx.send("Du hast dein tägliches Flip-Limit erreicht!")
   else:
     if flips[1] != datenow:
