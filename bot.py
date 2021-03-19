@@ -6,7 +6,6 @@ import os
 from datetime import datetime
 from utils import database
 
-version = "1.1"
 description = "Ein Bot der eine virtuelle Bank simuliert."
 bot = commands.Bot(command_prefix=".", description=description)
 
@@ -44,6 +43,7 @@ async def ping(ctx):
 
 @bot.command(description="Sehe die aktuelle Version des Bots", help="Sehe die aktuelle Version des Bots")
 async def version(ctx):
+  version = "1.1"
   await ctx.send("Die aktuelle Version ist `{0}`".format(version))
 
 
